@@ -52,7 +52,7 @@ def dropout(d, len):
 def add_noise_add(d, noise_scale):
     """Additive noise"""
     if is_training:
-        d = d + tf.random_normal(tf.shape(d), stddev=noise_scale)
+        d = d + tf.random.normal(tf.shape(input=d), stddev=noise_scale)
     return d
 
 
@@ -62,39 +62,39 @@ def inv_sigmoid(y):
 
 def layer_norm(cur, scope):
     """Normalize based on mean variance"""
-    with tf.variable_scope(scope):
-        cur -= tf.reduce_mean(cur, axis=1, keepdims=True)
+    with tf.compat.v1.variable_scope(scope):
+        cur -= tf.reduce_mean(input_tensor=cur, axis=1, keepdims=True)
         cur += add_bias_1(cur, "norm_bias")
-        variance = tf.reduce_mean(tf.square(cur), [1], keepdims=True)
-        cur = cur * tf.rsqrt(variance + 1e-10)
+        variance = tf.reduce_mean(input_tensor=tf.square(cur), axis=[1], keepdims=True)
+        cur = cur * tf.math.rsqrt(variance + 1e-10)
         return cur
 
 
 def add_bias_1(cur, scope):
-    with tf.variable_scope(scope):
+    with tf.compat.v1.variable_scope(scope):
         size = cur.get_shape().as_list()
-        offset = tf.get_variable('offset', [1, 1, size[-1]], initializer=tf.zeros_initializer)
+        offset = tf.compat.v1.get_variable('offset', [1, 1, size[-1]], initializer=tf.compat.v1.zeros_initializer)
         return cur + offset
 
 
 def conv_linear(input, kernel_width, nin, nout, bias_start, prefix, add_bias=True, init_scale=1.0, stride=1):
     """Convolutional linear map"""
 
-    with tf.variable_scope(prefix):
-        initializer = tf.variance_scaling_initializer(scale=init_scale, mode="fan_avg", distribution="uniform")
+    with tf.compat.v1.variable_scope(prefix):
+        initializer = tf.compat.v1.variance_scaling_initializer(scale=init_scale, mode="fan_avg", distribution="uniform")
         if kernel_width == 1:
             inp_shape = input.get_shape().as_list()
-            filter = tf.get_variable("CvK", [nin, nout], initializer=initializer)
+            filter = tf.compat.v1.get_variable("CvK", [nin, nout], initializer=initializer)
 
             res = tf.matmul(tf.reshape(input, [inp_shape[0] * inp_shape[1], nin]), filter)
             res = tf.reshape(res, [inp_shape[0], inp_shape[1], nout])
         else:
-            filter = tf.get_variable("CvK", [kernel_width, nin, nout], initializer=initializer)
-            res = tf.nn.conv1d(input, filter, stride, "SAME")
+            filter = tf.compat.v1.get_variable("CvK", [kernel_width, nin, nout], initializer=initializer)
+            res = tf.nn.conv1d(input=input, filters=filter, stride=stride, padding="SAME")
 
         if add_bias:
             # nonzero initializer is used to prevent degenerancy issues with normalization and zero inputs
-            bias_term = tf.get_variable("CvB", [nout], initializer=tf.random_uniform_initializer(
+            bias_term = tf.compat.v1.get_variable("CvB", [nout], initializer=tf.compat.v1.random_uniform_initializer(
                 bias_start, bias_start + 0.01))
             res = res + bias_term
 
@@ -146,8 +146,8 @@ def switch_layer(mem_shuffled, kernel_width, prefix):
     residual_weight = 0.9
     candidate_weight = np.sqrt(1 - residual_weight ** 2) * 0.25
     lr_adjust = 2
-    residual_scale = tf.sigmoid(tf.get_variable(prefix + "/residual", [num_units * 2],
-                                                initializer=tf.constant_initializer(
+    residual_scale = tf.sigmoid(tf.compat.v1.get_variable(prefix + "/residual", [num_units * 2],
+                                                initializer=tf.compat.v1.constant_initializer(
                                                     inv_sigmoid(residual_weight) / lr_adjust)) * lr_adjust)
     residual_list.append(tf.reshape(tf.clip_by_value(residual_scale, 0.0, 1.0), [1, num_units * 2, 1]))
 
@@ -166,7 +166,7 @@ def shuffle_exchange_network_heavy_sharing(cur, name, kernel_width=1, n_blocks=1
     n_bits = (length - 1).bit_length()
     all_mem = []
 
-    with tf.variable_scope(name + "_recursive", reuse=tf.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(name + "_recursive", reuse=tf.compat.v1.AUTO_REUSE):
         for k in range(n_blocks):
             outstack = []
             for i in range(n_bits - 1):
@@ -200,7 +200,7 @@ def shuffle_exchange_network(cur, name, kernel_width=1, n_blocks=1, tied_inner_w
     n_bits = (length - 1).bit_length()
     all_mem = []
 
-    with tf.variable_scope(name + "/shuffle_exchange", reuse=tf.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(name + "/shuffle_exchange", reuse=tf.compat.v1.AUTO_REUSE):
         outstack = []
         stack = []
 

@@ -155,7 +155,7 @@ class RAdamOptimizer(optimizer.Optimizer):
             warmup_steps = total_steps * warmup_proportion
             decay_steps = math_ops.maximum(total_steps - warmup_steps, 1)
             decay_rate = (min_lr - lr_t) / decay_steps
-            lr_t = tf.where(
+            lr_t = tf.compat.v1.where(
                 step <= warmup_steps,
                 lr_t * (step / warmup_steps),
                 lr_t + decay_rate * math_ops.minimum(step - warmup_steps, decay_steps),
@@ -169,7 +169,7 @@ class RAdamOptimizer(optimizer.Optimizer):
 
         if self.clip_gradients:
             clipVal = math_ops.sqrt(
-                tf.reduce_sum(v) / (1.0 - beta2_power)) * self.clip_multiplier_t + self.clip_epsilon_t
+                tf.reduce_sum(input_tensor=v) / (1.0 - beta2_power)) * self.clip_multiplier_t + self.clip_epsilon_t
             grad = clip_ops.clip_by_norm(grad, clipVal)
 
         sma_inf = 2.0 / (1.0 - beta2_t) - 1.0
@@ -188,7 +188,7 @@ class RAdamOptimizer(optimizer.Optimizer):
                             (sma_t - 2.0) / (sma_inf - 2.0) *
                             sma_inf / sma_t)
 
-        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t, m_corr_t)
+        var_t = tf.compat.v1.where(sma_t >= 5.0, r_t * m_corr_t, m_corr_t)
 
         if var in self.reg_vars:
             if self._initial_weight_decay > 0.0:
@@ -215,7 +215,7 @@ class RAdamOptimizer(optimizer.Optimizer):
             warmup_steps = total_steps * warmup_proportion
             decay_steps = math_ops.maximum(total_steps - warmup_steps, 1)
             decay_rate = (min_lr - lr_t) / decay_steps
-            lr_t = tf.where(
+            lr_t = tf.compat.v1.where(
                 step <= warmup_steps,
                 lr_t * (step / warmup_steps),
                 lr_t + decay_rate * math_ops.minimum(step - warmup_steps, decay_steps),
@@ -228,7 +228,7 @@ class RAdamOptimizer(optimizer.Optimizer):
 
         if self.clip_gradients:
             clipVal = math_ops.sqrt(
-                tf.reduce_sum(v) / (1.0 - beta2_power)) * self.clip_multiplier_t + self.clip_epsilon_t
+                tf.reduce_sum(input_tensor=v) / (1.0 - beta2_power)) * self.clip_multiplier_t + self.clip_epsilon_t
             grad = clip_ops.clip_by_norm(grad, clipVal)
 
         sma_inf = 2.0 / (1.0 - beta2_t) - 1.0
@@ -256,7 +256,7 @@ class RAdamOptimizer(optimizer.Optimizer):
                             (sma_t - 2.0) / (sma_inf - 2.0) *
                             sma_inf / sma_t)
 
-        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t / v_corr_t, m_corr_t)
+        var_t = tf.compat.v1.where(sma_t >= 5.0, r_t * m_corr_t / v_corr_t, m_corr_t)
 
         if var in self.reg_vars:
             if self._initial_weight_decay > 0.0:

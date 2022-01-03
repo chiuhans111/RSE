@@ -18,13 +18,13 @@ def extract_tar(tar_path, location):
 
 def download(directory, filename, url):
     """Download filename from url unless it's already in directory."""
-    if not tf.gfile.Exists(directory):
+    if not tf.io.gfile.exists(directory):
         print("Creating directory %s" % directory)
         os.mkdir(directory)
 
     path = os.path.join(directory, filename)
 
-    if not tf.gfile.Exists(path):
+    if not tf.io.gfile.exists(path):
         print("Downloading %s to %s" % (url, path))
         path, _ = urllib.request.urlretrieve(url, path)
         statinfo = os.stat(path)

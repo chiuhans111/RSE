@@ -59,9 +59,9 @@ def run_test():
         with tf.Graph().as_default():
             tester = create_tester(test_length)
 
-            with tf.Session(config=tf.ConfigProto()) as sess:
-                sess.run(tf.global_variables_initializer())
-                saver = tf.train.Saver(tf.global_variables())
+            with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto()) as sess:
+                sess.run(tf.compat.v1.global_variables_initializer())
+                saver = tf.compat.v1.train.Saver(tf.compat.v1.global_variables())
                 saver.restore(sess, cnf.model_file)
 
                 for input_batch, target_batch, target_y in data_set_test(test_length):
@@ -124,9 +124,9 @@ def run_test_musicnet():
         with tf.Graph().as_default():
             tester = create_tester(test_length)
 
-            with tf.Session(config=tf.ConfigProto()) as sess:
-                sess.run(tf.global_variables_initializer())
-                saver = tf.train.Saver(tf.global_variables())
+            with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto()) as sess:
+                sess.run(tf.compat.v1.global_variables_initializer())
+                saver = tf.compat.v1.train.Saver(tf.compat.v1.global_variables())
                 saver.restore(sess, cnf.model_file)
 
                 predictions = []

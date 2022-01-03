@@ -68,27 +68,27 @@ with tf.Graph().as_default():
     learner = RSE(cnf.n_hidden, cnf.bins, cnf.n_input, countList, cnf.n_output, cnf.dropout_keep_prob,
                   create_translation_model=cnf.task in cnf.language_tasks, use_two_gpus=cnf.use_two_gpus)
     learner.create_graph()
-    learner.variable_summaries = tf.summary.merge_all()
-    tf.get_variable_scope().reuse_variables()
+    learner.variable_summaries = tf.compat.v1.summary.merge_all()
+    tf.compat.v1.get_variable_scope().reuse_variables()
     learner.create_test_graph(cnf.forward_max)
-    saver = tf.train.Saver(tf.global_variables())
+    saver = tf.compat.v1.train.Saver(tf.compat.v1.global_variables())
 
-    with tf.Session(config=cnf.tf_config) as sess:
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.local_variables_initializer())
+    with tf.compat.v1.Session(config=cnf.tf_config) as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
+        sess.run(tf.compat.v1.local_variables_initializer())
 
         current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
         run_name = "{time}_{task}".format(time=current_time, task=cnf.task)
         if len(sys.argv) > 1:  # if run_name is passed as CL argument
             run_name = str(sys.argv)[1]
         output_dir = os.path.join(cnf.out_dir, run_name)
-        train_writer = tf.summary.FileWriter(output_dir)
+        train_writer = tf.compat.v1.summary.FileWriter(output_dir)
 
         if cnf.load_prev:
-            saver1 = tf.train.Saver([var for var in tf.trainable_variables()])
+            saver1 = tf.compat.v1.train.Saver([var for var in tf.compat.v1.trainable_variables()])
             saver1.restore(sess, cnf.model_file)
 
-        tvars = tf.trainable_variables()
+        tvars = tf.compat.v1.trainable_variables()
         vsum = 0
         for v in tvars:
             vsum += np.product(v.get_shape().as_list())
@@ -228,10 +228,10 @@ while test_length < cnf.max_test_length:
     with tf.Graph().as_default():
         tester = RSE(cnf.n_hidden, [test_length], cnf.n_input, [batchSize], cnf.n_output, cnf.dropout_keep_prob)
         tester.create_test_graph(test_length)
-        saver = tf.train.Saver(tf.global_variables())
+        saver = tf.compat.v1.train.Saver(tf.compat.v1.global_variables())
 
-        with tf.Session(config=cnf.tf_config) as sess:
-            sess.run(tf.global_variables_initializer())
+        with tf.compat.v1.Session(config=cnf.tf_config) as sess:
+            sess.run(tf.compat.v1.global_variables_initializer())
             saver.restore(sess, cnf.model_file)
             errors, seq_errors, total = 0, 0, 0
             for iter in range(cnf.test_data_size // batchSize):

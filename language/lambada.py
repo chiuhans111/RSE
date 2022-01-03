@@ -51,7 +51,7 @@ def read_file(file_name: str) -> list:
 
 
 def load_embedding_vocabulary() -> dict:
-    if not tf.gfile.Exists(cnf.emb_word_dictionary):
+    if not tf.io.gfile.exists(cnf.emb_word_dictionary):
         utils.prepare_embeddings()
 
     with open(cnf.emb_word_dictionary, "rb") as dict_file:
@@ -59,7 +59,7 @@ def load_embedding_vocabulary() -> dict:
 
 
 def tokenize_files():
-    if not tf.gfile.Exists(train_file):
+    if not tf.io.gfile.exists(train_file):
         download_lambada()
 
     lines = read_file(train_file)  # Tokenize train file
@@ -112,7 +112,7 @@ def prepare_custom_vocabulary(lines):
 class LambadaTask(LanguageTask):
 
     def prepare_train_data(self):
-        if not tf.gfile.Exists(train_token_file):
+        if not tf.io.gfile.exists(train_token_file):
             tokenize_files()
 
         lines = read_file(train_token_file)
@@ -135,7 +135,7 @@ class LambadaTask(LanguageTask):
 
     def prepare_test_data(self):
 
-        if not tf.gfile.Exists(test_token_file):
+        if not tf.io.gfile.exists(test_token_file):
             tokenize_files()
 
         lines = read_file(test_token_file)

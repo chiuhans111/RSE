@@ -23,7 +23,7 @@ np.load = np_load_old
 # split the dataset into train, validation and test
 test_IDs = ['2303', '2382', '1819']
 validation_IDs = ['2131', '2384', '1792', '2514', '2567', '1876']
-train_IDs = [ID for ID in data.files if ID not in (test_IDs + validation_IDs)]
+train_IDs = [ID for ID in data.files if ID not in (test_IDs + validation_IDs)][:10]
 
 
 def create_set(n_songs, stride, mode):
